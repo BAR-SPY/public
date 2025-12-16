@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: Manual workflow
+name: push_to_main
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -12,7 +12,7 @@ on:
         # Friendly description to be shown in the UI instead of 'name'
         description: 'This action will automatically update my public repo.'
         # Default value if no value is explicitly provided
-        default: 'World'
+        default: 'Push Me'
         # Input has to be provided for the workflow to run
         required: true
         # The data type of the input
@@ -28,5 +28,19 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ inputs.name }}"
+    - name: Pull Public Repo
+      run: |
+        git config --global user.email "austin@hamrick.xyz"
+        git config --global user.name "BAR-SPY"
+        git clone https://${{ env.ORG_NAME }}:${{ secrets.PAT }}@github.com/${{ env.ORG_NAME }}/public.git
+        cd public
+        git remote add ${{ env.ORIGINAL_REPO_NAME }} https://${ env.ORG_NAME }}:${{ secrets.PAT }}@github.com/${{ env.ORG_NAME }}/${{ env.ORIGINAL_REPO_NAME }}.git
+        git remote update
+        git merge ${{ env.ORIGINAL_REPO_NAME }}/main
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+        ORIGINAL_REPO_NAME: ${{ github.event.repository.name }}
+        ORG_NAME: BAR-SPY
+
+
