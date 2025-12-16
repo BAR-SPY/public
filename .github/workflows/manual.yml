@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-      name: 'Commit to public'
+       commit_to_public: 
         # Friendly description to be shown in the UI instead of 'name'
         description: 'This action will automatically update my public repo.'
         # Default value if no value is explicitly provided
