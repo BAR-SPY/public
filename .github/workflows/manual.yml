@@ -29,6 +29,11 @@ jobs:
     - name: Checkout source repository.
       uses: actions/checkout@v2
 
+    - name: Debug
+      run: |
+        echo "ORG_NAME=${ORG_NAME}"
+        echo "ORIGINAL_REPO_NAME=${ORIGINAL_REPO_NAME}"
+
     - name: Merge repositories.
       run: |
         git config --global user.email "austin@hamrick.xyz"
