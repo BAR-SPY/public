@@ -33,6 +33,10 @@ jobs:
       run: |
         echo "ORG_NAME=${{ env.ORG_NAME }}"
         echo "ORIGINAL_REPO_NAME=${{ env.ORIGINAL_REPO_NAME }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+        ORIGINAL_REPO_NAME: ${{ github.event.repository.name }}
+        ORG_NAME: BAR-SPY
 
     - name: Merge repositories.
       run: |
