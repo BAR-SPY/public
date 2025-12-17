@@ -1,28 +1,16 @@
 # This is a basic workflow that is manually triggered
 
 name: push_to_main
-
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
 on:
   workflow_dispatch:
-    # Inputs the workflow accepts.
     inputs:
        commit_to_public: 
-        # Friendly description to be shown in the UI instead of 'name'
         description: 'This action will automatically update my public repo.'
-        # Default value if no value is explicitly provided
         default: 'Push Me'
-        # Input has to be provided for the workflow to run
         required: true
-        # The data type of the input
         type: string
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
   push_to_public:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
     steps:
@@ -38,19 +26,33 @@ jobs:
         ORIGINAL_REPO_NAME: ${{ github.event.repository.name }}
         ORG_NAME: BAR-SPY
 
-    - name: Merge repositories.
+    - name: Configure git identity.
+      env:
+        PAT: ${{ secrets.PAT }}
       run: |
         git config --global user.email "austin@hamrick.xyz"
         git config --global user.name "austin@hamrick.xyz"
-        git clone https://${{ env.ORG_NAME }}:${{ secrets.PAT }}@github.com/${{ env.ORG_NAME }}/public.git
-        cd public
-        git remote add ${{ env.ORIGINAL_REPO_NAME }} https://${{ env.ORG_NAME }}:${{ secrets.PAT }}@github.com/${{ env.ORG_NAME }}/${{ env.ORIGINAL_REPO_NAME }}.git
-        git remote update
-        git merge ${{ env.ORIGINAL_REPO_NAME }}/main
-        git push origin main
+        git config --global http.https://github.com/.extraheader \
+          "AUTHORIZATION: basic $(printf "x-access-token:${PAT}" | base64 -w 0)"
+
+    - name: Merge repositories.
       env:
-        GITHUB_TOKEN: ${{ secrets.PAT }}
         ORIGINAL_REPO_NAME: ${{ github.event.repository.name }}
         ORG_NAME: BAR-SPY
+      run: |
+        # Clone public repo ( target repo )
+        git clone https://github.com/${ORG_NAME}/public.git
+        cd public
+
+        # Add private repo.
+        git remote add source "https://github.com/${ORG_NAME}/${ORIGINAL_REPO_NAME}.git"
+
+        git ls-remote source -h
+
+        # Fetch and merge
+        git fetch source --tags
+        git checkout main
+        git merge --no-ff source/main -m "Merge ${ORIGINAL_REPO_NAME} into public"
+        git push origin main
 
 
