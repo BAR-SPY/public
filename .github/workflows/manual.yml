@@ -31,8 +31,8 @@ jobs:
 
     - name: Debug
       run: |
-        echo "ORG_NAME=${ORG_NAME}"
-        echo "ORIGINAL_REPO_NAME=${ORIGINAL_REPO_NAME}"
+        echo "ORG_NAME=${{ env.ORG_NAME }}"
+        echo "ORIGINAL_REPO_NAME=${{ env.ORIGINAL_REPO_NAME }}"
 
     - name: Merge repositories.
       run: |
